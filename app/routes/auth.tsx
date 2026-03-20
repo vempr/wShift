@@ -97,7 +97,7 @@ export default function Auth() {
 			/>
 
 			{user ? (
-				<div className="mt-2">
+				<div>
 					<h1>Hello, {user.email}. You can manage your account here.</h1>
 
 					<div className="mt-4 flex gap-x-2">

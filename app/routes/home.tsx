@@ -32,7 +32,7 @@ export default function Home() {
 	const user = useLoaderData<typeof loader>();
 
 	return (
-		<div>
+		<div className="h-full flex flex-col">
 			<Nav
 				loggedIn={user ? true : false}
 				email={user?.email}

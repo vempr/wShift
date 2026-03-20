@@ -9,12 +9,15 @@ export default function Nav({
 	email?: string;
 }) {
 	return (
-		<nav>
+		<nav className="mb-2">
 			<ul className="flex justify-between">
-				<li>
+				<li className="flex gap-x-3 items-center">
 					<Link to="/">
 						<h1 className="text-2xl font-bold italic">wShift</h1>
 					</Link>
+					<p className="text-xs opacity-40 italic">
+						{'->'} document your work shifts.
+					</p>
 				</li>
 				<li>
 					<div className="flex items-center gap-x-3">
