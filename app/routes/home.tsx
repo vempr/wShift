@@ -1,4 +1,4 @@
-import Calendar from '~/calendar/Calendar';
+import Calendar from '~/calendar/calendar';
 import type { Route } from './+types/home';
 import Nav from '~/components/nav';
 import { createSupabaseServerClient } from '~/utils/supabase.server';
@@ -26,6 +26,11 @@ export async function loader({ request }: Route.LoaderArgs) {
 	} = await supabaseClient.auth.getUser();
 
 	return user;
+}
+
+export async function action({ request }: Route.ActionArgs) {
+	console.log(await request.formData());
+	return null;
 }
 
 export default function Home() {
