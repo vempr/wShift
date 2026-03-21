@@ -26,15 +26,16 @@ import { useState } from 'react';
 import { calculatePayFromWage } from '~/utils/wage';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { shiftSchema, type ShiftFormSchema } from '~/form/shift';
-import type { Template } from '~/utils/templateStorage';
+import { templateStorage, type Template } from '~/utils/templateStorage';
 import { Badge } from '~/components/ui/badge';
-import { Pencil } from 'lucide-react';
+import { Pencil, RefreshCcw } from 'lucide-react';
 
 interface ShiftDrawerProps {
 	shift: Shift;
 	epicDate: string;
 	templates: Template[];
 	setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
+	setTemplates: React.Dispatch<React.SetStateAction<Template[]>>;
 }
 
 export default function EditShiftDrawer({
@@ -42,6 +43,7 @@ export default function EditShiftDrawer({
 	epicDate,
 	templates,
 	setShifts,
+	setTemplates,
 }: ShiftDrawerProps) {
 	const [addShiftDialogIsOpen, setAddShiftDialogIsOpen] = useState(false);
 
@@ -75,7 +77,18 @@ export default function EditShiftDrawer({
 				</DrawerHeader>
 
 				<div className="flex flex-col justify-content items-center">
-					<p className="mb-1 font-bold">Templates:</p>
+					<div className="flex gap-x-2 items-center mb-2">
+						<Button
+							variant="outline"
+							onClick={() => {
+								setTemplates(templateStorage.get_all_templates());
+							}}
+						>
+							<RefreshCcw />
+						</Button>
+						<p className="mb-1 font-bold">Templates:</p>
+					</div>
+
 					{templates.length ? (
 						<ul className="flex flex-col gap-y-1 mb-5">
 							{templates.map((template) => {
@@ -100,11 +113,11 @@ export default function EditShiftDrawer({
 														{template.wage &&
 															template.wage !== '' &&
 															template.wage !== '0' &&
-															`${parseFloat(template.wage).toString()}$/hr, ${calculatePayFromWage(template.wage, template.to, template.from)}$ total`}
+															`${parseFloat(template.wage).toFixed(2).toString()}$/hr, ${calculatePayFromWage(template.wage, template.to, template.from)}$ total`}
 														{template.pay &&
 															template.pay !== '' &&
 															template.pay !== '0' &&
-															`${parseFloat(template.pay).toString()}$ total`}
+															`${parseFloat(template.pay).toFixed(2).toString()}$ total`}
 														)
 													</span>
 												</Badge>

@@ -57,7 +57,7 @@ export default function Calendar() {
 
 	return (
 		<div className="flex gap-x-4 h-full">
-			<Insights />
+			<Insights currentMonth={currentMonth} />
 			<div className="flex flex-1 flex-col items-center gap-y-2 min-h-0 overflow-hidden">
 				<div className="flex justify-between w-full">
 					<div className="flex-1"></div>

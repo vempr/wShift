@@ -68,11 +68,11 @@ export default function ManageShiftTemplates() {
 														{template.wage &&
 															template.wage !== '' &&
 															template.wage !== '0' &&
-															`${parseFloat(template.wage).toString()}$/hr, ${calculatePayFromWage(template.wage, template.to, template.from)}$ total`}
+															`${parseFloat(template.wage).toFixed(2).toString()}$/hr, ${calculatePayFromWage(template.wage, template.to, template.from).toFixed(2)}$ total`}
 														{template.pay &&
 															template.pay !== '' &&
 															template.pay !== '0' &&
-															`${parseFloat(template.pay).toString()}$ total`}
+															`${parseFloat(template.pay).toFixed(2).toString()}$ total`}
 														)
 													</span>
 												</Badge>

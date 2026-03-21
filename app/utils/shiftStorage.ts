@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { eachWeekOfInterval, endOfMonth, endOfWeek, format } from 'date-fns';
 
 export interface Shift {
 	id: string;
@@ -16,6 +16,13 @@ export interface ShiftFormData {
 	pay?: string;
 	from: string;
 	to: string;
+}
+
+export interface WeekSummary {
+	weekNumber: number;
+	startDate: Date;
+	endDate: Date;
+	earnings: number;
 }
 
 class ShiftStorage {
@@ -53,7 +60,7 @@ class ShiftStorage {
 		const allShifts = this.get_all_shifts();
 		const i = allShifts.findIndex((shift) => shift.id === shiftId);
 
-		if (i !== 1) {
+		if (i !== -1) {
 			allShifts[i] = { ...allShifts[i], ...updatedData };
 			localStorage.setItem(this.storageKey, JSON.stringify(allShifts));
 			return allShifts[i];
@@ -71,6 +78,93 @@ class ShiftStorage {
 		);
 
 		return shiftsWithoutDeletedShift;
+	}
+
+	calculate_hours_worked(shift: Shift): number {
+		const [fromHour, fromMinute] = shift.from.split(':').map(Number);
+		const [toHour, toMinute] = shift.to.split(':').map(Number);
+
+		const fromMinutes = fromHour * 60 + fromMinute;
+		const toMinutes = toHour * 60 + toMinute;
+
+		let durationMinutes = toMinutes - fromMinutes;
+		if (durationMinutes < 0) {
+			durationMinutes += 24 * 60;
+		}
+
+		return durationMinutes / 60;
+	}
+
+	calculate_shift_earnings(shift: Shift): number {
+		if (shift.wage && shift.wage !== '' && shift.wage !== '0') {
+			const hoursWorked = this.calculate_hours_worked(shift);
+			const rate = parseFloat(shift.wage);
+			if (!isNaN(hoursWorked) && !isNaN(rate)) {
+				return hoursWorked * rate;
+			}
+		} else if (shift.pay && shift.pay !== '' && shift.pay !== '0') {
+			const pay = parseFloat(shift.pay);
+			if (!isNaN(pay)) {
+				return pay;
+			}
+		}
+
+		return 0;
+	}
+
+	sum_in_year(year: number) {
+		const allShifts = this.get_all_shifts();
+
+		return allShifts.reduce((total, shift) => {
+			const shiftYear = parseInt(shift.date.split('-')[0]);
+			if (shiftYear == year) {
+				return total + this.calculate_shift_earnings(shift);
+			}
+			return total;
+		}, 0);
+	}
+
+	sum_in_month(year: number, month: number): number {
+		const allShifts = this.get_all_shifts();
+
+		return allShifts.reduce((total, shift) => {
+			const [shiftYear, shiftMonth] = shift.date.split('-').map(Number);
+			if (shiftYear == year && shiftMonth === month + 1) {
+				return total + this.calculate_shift_earnings(shift);
+			}
+			return total;
+		}, 0);
+	}
+
+	get_weeks_in_month(year: number, month: number): WeekSummary[] {
+		const monthStart = new Date(year, month, 1);
+		const monthEnd = endOfMonth(monthStart);
+
+		const weeks = eachWeekOfInterval(
+			{ start: monthStart, end: monthEnd },
+			{ weekStartsOn: 1 },
+		);
+
+		const allShifts = this.get_all_shifts();
+		return weeks.map((weekStart, index) => {
+			const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+
+			const shiftsInWeek = allShifts.filter((shift) => {
+				const shiftDate = new Date(shift.date);
+				return shiftDate >= weekStart && shiftDate <= weekEnd;
+			});
+
+			const weeklyEarnings = shiftsInWeek.reduce((total, shift) => {
+				return total + this.calculate_shift_earnings(shift);
+			}, 0);
+
+			return {
+				weekNumber: index + 1,
+				startDate: weekStart,
+				endDate: weekEnd,
+				earnings: weeklyEarnings,
+			};
+		});
 	}
 }
 

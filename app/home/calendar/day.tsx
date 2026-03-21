@@ -9,7 +9,7 @@ import {
 } from '~/components/ui/dialog';
 import { shiftStorage, type Shift } from '~/utils/shiftStorage';
 import { Button } from '~/components/ui/button';
-import { format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 
 import { Badge } from '~/components/ui/badge';
 import { calculatePayFromWage } from '~/utils/wage';
@@ -60,12 +60,29 @@ export default function Day({
 
 	const epicDate = `${formattedDay}${daySuffix} of ${format(currentMonth, 'MMMM')}, ${format(currentMonth, 'yyyy')}`;
 
+	const earnings = shiftsForDay.reduce((total, shift) => {
+		if (shift.wage && shift.wage !== '' && shift.wage !== '0')
+			return total + calculatePayFromWage(shift.wage, shift.to, shift.from);
+		else if (shift.pay && shift.pay !== '' && shift.pay !== '0')
+			return total + parseFloat(shift.pay);
+		return total;
+	}, 0);
+
 	return (
 		<Dialog key={day.toString()}>
 			<DialogTrigger asChild>
 				<Card className="hover:cursor-pointer h-full hover:italic">
 					<CardHeader>
-						<CardTitle>{formattedDay}</CardTitle>
+						<CardTitle>
+							{isSameDay(day, new Date()) ? (
+								<span className="underline font-black">{formattedDay}</span>
+							) : (
+								formattedDay
+							)}{' '}
+							{earnings > 0 && (
+								<kbd className="font-bold">({earnings.toFixed(2)}$)</kbd>
+							)}
+						</CardTitle>
 					</CardHeader>
 					<CardContent className="overflow-auto h-12 2xl:h-30">
 						<ul className="flex flex-col gap-y-0.5">
@@ -107,11 +124,11 @@ export default function Day({
 														{shift.wage &&
 															shift.wage !== '' &&
 															shift.wage !== '0' &&
-															`${parseFloat(shift.wage).toString()}$/hr, ${calculatePayFromWage(shift.wage, shift.to, shift.from)}$ total`}
+															`${parseFloat(shift.wage).toFixed(2).toString()}$/hr, ${calculatePayFromWage(shift.wage, shift.to, shift.from).toFixed(2)}$ total`}
 														{shift.pay &&
 															shift.pay !== '' &&
 															shift.pay !== '0' &&
-															`${parseFloat(shift.pay).toString()}$ total`}
+															`${parseFloat(shift.pay).toFixed(2).toString()}$ total`}
 														)
 													</span>
 												</Badge>
@@ -123,6 +140,7 @@ export default function Day({
 												epicDate={epicDate}
 												templates={templates}
 												setShifts={setShifts}
+												setTemplates={setTemplates}
 											/>
 											<Button
 												variant="destructive"
@@ -146,6 +164,7 @@ export default function Day({
 						epicDate={epicDate}
 						templates={templates}
 						setShifts={setShifts}
+						setTemplates={setTemplates}
 					/>
 				</div>
 			</DialogContent>

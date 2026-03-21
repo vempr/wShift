@@ -52,7 +52,7 @@ class TemplateStorage {
 		const allTemplates = this.get_all_templates();
 		const i = allTemplates.findIndex((shift) => shift.id === templateId);
 
-		if (i !== 1) {
+		if (i !== -1) {
 			allTemplates[i] = { ...allTemplates[i], ...updatedData };
 			localStorage.setItem(this.storageKey, JSON.stringify(allTemplates));
 			return allTemplates[i];
