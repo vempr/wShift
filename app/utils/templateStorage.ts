@@ -61,7 +61,7 @@ class TemplateStorage {
 		return null;
 	}
 
-	delete_template(templateId: string): void {
+	delete_template(templateId: string): Template[] {
 		const allTemplates = this.get_all_templates();
 		const newTemplatesAfterDeletion = allTemplates.filter(
 			(s) => s.id !== templateId,
@@ -70,6 +70,8 @@ class TemplateStorage {
 			this.storageKey,
 			JSON.stringify(newTemplatesAfterDeletion),
 		);
+
+		return newTemplatesAfterDeletion;
 	}
 }
 

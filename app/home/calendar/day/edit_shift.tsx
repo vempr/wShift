@@ -146,8 +146,6 @@ export default function EditShiftDrawer({
 								console.log(formData);
 								shiftStorage.update_shift(shift.id, shiftData);
 								setShifts(shiftStorage.get_all_shifts());
-
-								form.reset();
 								setAddShiftDialogIsOpen(false);
 							}
 						}}
