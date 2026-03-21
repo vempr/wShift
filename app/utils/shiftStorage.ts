@@ -62,13 +62,15 @@ class ShiftStorage {
 		return null;
 	}
 
-	delete_shift(shiftId: string): void {
+	delete_shift(shiftId: string): Shift[] {
 		const allShifts = this.get_all_shifts();
 		const shiftsWithoutDeletedShift = allShifts.filter((s) => s.id !== shiftId);
 		localStorage.setItem(
 			this.storageKey,
 			JSON.stringify(shiftsWithoutDeletedShift),
 		);
+
+		return shiftsWithoutDeletedShift;
 	}
 }
 

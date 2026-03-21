@@ -1,0 +1,283 @@
+import { Input } from '~/components/ui/input';
+import {
+	Drawer,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from '~/components/ui/drawer';
+import {
+	Field,
+	FieldDescription,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '~/components/ui/field';
+import { Controller, useForm } from 'react-hook-form';
+import {
+	shiftStorage,
+	type Shift,
+	type ShiftFormData,
+} from '~/utils/shiftStorage';
+import { Button } from '~/components/ui/button';
+import { useState } from 'react';
+import { calculatePayFromWage } from '~/utils/wage';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { shiftSchema, type ShiftFormSchema } from '~/form/shift';
+import type { Template } from '~/utils/templateStorage';
+import { Badge } from '~/components/ui/badge';
+import { Pencil } from 'lucide-react';
+
+interface ShiftDrawerProps {
+	shift: Shift;
+	epicDate: string;
+	templates: Template[];
+	setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
+}
+
+export default function EditShiftDrawer({
+	shift,
+	epicDate,
+	templates,
+	setShifts,
+}: ShiftDrawerProps) {
+	const [addShiftDialogIsOpen, setAddShiftDialogIsOpen] = useState(false);
+
+	const form = useForm<ShiftFormSchema>({
+		resolver: zodResolver(shiftSchema),
+		defaultValues: {
+			workplace: shift.workplace,
+			wage: shift.wage ?? '0',
+			pay: shift.pay ?? '0',
+			from: shift.from,
+			to: shift.to,
+		},
+	});
+
+	return (
+		<Drawer
+			open={addShiftDialogIsOpen}
+			onOpenChange={setAddShiftDialogIsOpen}
+		>
+			<DrawerTrigger asChild>
+				<Button variant="secondary">
+					<Pencil />
+				</Button>
+			</DrawerTrigger>
+			<DrawerContent>
+				<DrawerHeader>
+					<DrawerTitle>Edit shift for {epicDate}</DrawerTitle>
+					<DrawerDescription>
+						Edit manually or use a work shift template.
+					</DrawerDescription>
+				</DrawerHeader>
+
+				<div className="flex flex-col justify-content items-center">
+					<p className="mb-1 font-bold">Templates:</p>
+					{templates.length ? (
+						<ul className="flex flex-col gap-y-1 mb-5">
+							{templates.map((template) => {
+								return (
+									<li key={template.id}>
+										<button
+											className="flex gap-x-1 items-center hover:cursor-pointer hover:italic"
+											onClick={() => {
+												form.setValue('workplace', template.workplace);
+												form.setValue('wage', template.wage ?? '');
+												form.setValue('pay', template.pay ?? '');
+												form.setValue('from', template.from);
+												form.setValue('to', template.to);
+											}}
+										>
+											<p>{template.workplace}:</p>
+											<div className="flex">
+												<Badge>
+													{template.from} - {template.to}{' '}
+													<span className="font-bold">
+														(
+														{template.wage &&
+															template.wage !== '' &&
+															template.wage !== '0' &&
+															`${parseFloat(template.wage).toString()}$/hr, ${calculatePayFromWage(template.wage, template.to, template.from)}$ total`}
+														{template.pay &&
+															template.pay !== '' &&
+															template.pay !== '0' &&
+															`${parseFloat(template.pay).toString()}$ total`}
+														)
+													</span>
+												</Badge>
+											</div>
+										</button>
+									</li>
+								);
+							})}
+						</ul>
+					) : (
+						<p className="opacity-50">No templates created.</p>
+					)}
+
+					<form
+						className="min-w-96 flex flex-col justify-content items-center"
+						onSubmit={(e) => {
+							e.preventDefault();
+							const formData = new FormData(e.currentTarget);
+
+							const shiftData: ShiftFormData = {
+								workplace: formData.get('workplace') as string,
+								wage: (formData.get('wage') as string) || undefined,
+								pay: (formData.get('pay') as string) || undefined,
+								from: formData.get('from') as string,
+								to: formData.get('to') as string,
+							};
+
+							const fromAndToValid = shiftData.from && shiftData.to;
+
+							const hasWage =
+								shiftData.wage &&
+								shiftData.wage !== '0' &&
+								shiftData.wage !== '';
+							const hasPay =
+								shiftData.pay && shiftData.pay !== '0' && shiftData.pay !== '';
+							const moneyValid = (hasWage && !hasPay) || (!hasWage && hasPay);
+
+							if (shiftData.workplace && fromAndToValid && moneyValid) {
+								console.log(formData);
+								shiftStorage.update_shift(shift.id, shiftData);
+								setShifts(shiftStorage.get_all_shifts());
+
+								form.reset();
+								setAddShiftDialogIsOpen(false);
+							}
+						}}
+					>
+						<FieldGroup>
+							<Controller
+								name="workplace"
+								control={form.control}
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldLabel htmlFor="workplace">Workplace</FieldLabel>
+										<Input
+											{...field}
+											id="workplace"
+											aria-invalid={fieldState.invalid}
+											placeholder="Apple Inc."
+											autoComplete="off"
+											required
+										/>
+										{fieldState.invalid && (
+											<FieldError errors={[fieldState.error]} />
+										)}
+									</Field>
+								)}
+							/>
+
+							<Controller
+								name="wage"
+								control={form.control}
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldLabel htmlFor="hourly-wage">
+											Hourly Wage (x$/h)
+										</FieldLabel>
+										<Input
+											{...field}
+											id="hourly-wage"
+											aria-invalid={fieldState.invalid}
+											placeholder="15"
+											autoComplete="off"
+											type="number"
+										/>
+										{fieldState.invalid && (
+											<FieldError errors={[fieldState.error]} />
+										)}
+									</Field>
+								)}
+							/>
+
+							<Controller
+								name="pay"
+								control={form.control}
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldLabel htmlFor="total-pay">Total Pay ($)</FieldLabel>
+										<Input
+											{...field}
+											id="total-pay"
+											aria-invalid={fieldState.invalid}
+											placeholder="120"
+											autoComplete="off"
+											type="number"
+										/>
+										{fieldState.invalid && (
+											<FieldError errors={[fieldState.error]} />
+										)}
+										<FieldDescription>
+											*Please fill out either only the hourly wage OR how much
+											you get paid for the entirety of the shift.*
+										</FieldDescription>
+									</Field>
+								)}
+							/>
+
+							<div className="flex gap-x-2 items-center">
+								<Controller
+									name="from"
+									control={form.control}
+									render={({ field, fieldState }) => (
+										<Field data-invalid={fieldState.invalid}>
+											<FieldLabel htmlFor="from">From</FieldLabel>
+											<Input
+												{...field}
+												id="from"
+												aria-invalid={fieldState.invalid}
+												placeholder="9:00"
+												autoComplete="off"
+												type="time"
+											/>
+											{fieldState.invalid && (
+												<FieldError errors={[fieldState.error]} />
+											)}
+										</Field>
+									)}
+								/>
+								<Controller
+									name="to"
+									control={form.control}
+									render={({ field, fieldState }) => (
+										<Field data-invalid={fieldState.invalid}>
+											<FieldLabel htmlFor="to">To</FieldLabel>
+											<Input
+												{...field}
+												id="to"
+												aria-invalid={fieldState.invalid}
+												placeholder="9:00"
+												autoComplete="off"
+												type="time"
+											/>
+											{fieldState.invalid && (
+												<FieldError errors={[fieldState.error]} />
+											)}
+										</Field>
+									)}
+								/>
+							</div>
+						</FieldGroup>
+
+						<Button
+							type="submit"
+							size="lg"
+							className="mt-5"
+						>
+							Finish edit
+						</Button>
+					</form>
+				</div>
+
+				<DrawerFooter></DrawerFooter>
+			</DrawerContent>
+		</Drawer>
+	);
+}
