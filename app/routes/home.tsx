@@ -1,4 +1,4 @@
-import Calendar from '~/calendar/calendar';
+import Calendar from '~/home/calendar';
 import type { Route } from './+types/home';
 import Nav from '~/components/nav';
 import { createSupabaseServerClient } from '~/utils/supabase.server';

@@ -6,12 +6,16 @@ export interface Shift {
 	wage?: string;
 	pay?: string;
 	date: string;
+	from: string;
+	to: string;
 }
 
 export interface ShiftFormData {
 	workplace: string;
 	wage?: string;
 	pay?: string;
+	from: string;
+	to: string;
 }
 
 class ShiftStorage {
@@ -34,6 +38,8 @@ class ShiftStorage {
 			wage: formData.wage,
 			pay: formData.pay,
 			date: format(date, 'yyyy-MM-dd'),
+			from: formData.from,
+			to: formData.to,
 		};
 
 		const allShifts = this.get_all_shifts();
@@ -43,7 +49,7 @@ class ShiftStorage {
 		return newShift;
 	}
 
-	delete_shift(shiftId: string, updatedData: Partial<Shift>): Shift | null {
+	update_shift(shiftId: string, updatedData: Partial<Shift>): Shift | null {
 		const allShifts = this.get_all_shifts();
 		const i = allShifts.findIndex((shift) => shift.id === shiftId);
 
@@ -54,6 +60,15 @@ class ShiftStorage {
 		}
 
 		return null;
+	}
+
+	delete_shift(shiftId: string): void {
+		const allShifts = this.get_all_shifts();
+		const shiftsWithoutDeletedShift = allShifts.filter((s) => s.id !== shiftId);
+		localStorage.setItem(
+			this.storageKey,
+			JSON.stringify(shiftsWithoutDeletedShift),
+		);
 	}
 }
 

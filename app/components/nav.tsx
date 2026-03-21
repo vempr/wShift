@@ -30,7 +30,9 @@ export default function Nav({
 							</>
 						) : (
 							<>
-								<p className="text-sm opacity-50">Guest</p>
+								<p className="text-sm opacity-50">
+									Guest <span className="italic">(link account to sync)</span>
+								</p>
 								<Link to="/auth">
 									<Button className="">Account</Button>
 								</Link>
