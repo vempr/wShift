@@ -17,6 +17,5 @@ export const calculatePayFromWage = (
 	}
 
 	const hoursWorked = durationMinutes / 60;
-	console.log(hoursWorked, parseFloat(wage));
 	return hoursWorked * parseFloat(wage);
 };

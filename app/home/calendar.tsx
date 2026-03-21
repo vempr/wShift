@@ -14,6 +14,7 @@ import { Card, CardHeader, CardTitle } from '~/components/ui/card';
 import Insights from './insights';
 import { type Shift, shiftStorage } from '~/utils/shiftStorage';
 import Day from './calendar/day';
+import ManageShiftTemplates from './calendar/template';
 
 export default function Calendar() {
 	const [shifts, setShifts] = useState<Shift[]>([]);
@@ -54,28 +55,33 @@ export default function Calendar() {
 		emptyDaysEndCount > 0 ? emptyDaysEndCount : 0,
 	).fill(null);
 
-	console.log(shifts);
-
 	return (
 		<div className="flex gap-x-4 h-full">
 			<Insights />
 			<div className="flex flex-1 flex-col items-center gap-y-2 min-h-0 overflow-hidden">
-				<div className="flex items-center gap-x-2">
-					<Button
-						className="rounded-full p-3 px-4"
-						onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-					>
-						<ChevronsLeft />
-					</Button>
-					<h1 className="text-xl min-w-50 text-center">
-						{format(currentMonth, 'MMMM yyyy')}
-					</h1>
-					<Button
-						className="rounded-full p-3 px-4"
-						onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-					>
-						<ChevronsRight />
-					</Button>
+				<div className="flex justify-between w-full">
+					<div className="flex-1"></div>
+					<div className="flex items-center gap-x-2 flex-1">
+						<Button
+							className="rounded-full p-3 px-4"
+							onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+						>
+							<ChevronsLeft />
+						</Button>
+						<h1 className="text-xl min-w-50 text-center">
+							{format(currentMonth, 'MMMM yyyy')}
+						</h1>
+						<Button
+							className="rounded-full p-3 px-4"
+							onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+						>
+							<ChevronsRight />
+						</Button>
+					</div>
+
+					<div className="flex-1 flex justify-end">
+						<ManageShiftTemplates />
+					</div>
 				</div>
 
 				<div className="grid grid-cols-7 gap-1 w-full">

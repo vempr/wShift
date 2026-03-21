@@ -19,7 +19,7 @@ export interface ShiftFormData {
 }
 
 class ShiftStorage {
-	private storageKey = 'I_HATE_YOU_POCHITA';
+	private storageKey = 'shifts';
 
 	get_all_shifts(): Shift[] {
 		try {

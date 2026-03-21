@@ -37,6 +37,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { shiftSchema, type ShiftFormSchema } from '~/form/shift';
 import { Badge } from '~/components/ui/badge';
 import { calculatePayFromWage } from '~/utils/wage';
+import { useEffect, useState } from 'react';
+import { templateStorage, type Template } from '~/utils/templateStorage';
 
 interface DayComponentProps {
 	day: Date;
@@ -51,6 +53,21 @@ export default function Day({
 	setShifts,
 	shiftsForDay,
 }: DayComponentProps) {
+	const [addShiftDialogIsOpen, setAddShiftDialogIsOpen] = useState(false);
+	const [templates, setTemplates] = useState<Template[]>([]);
+
+	useEffect(() => {
+		const loadTemplates = () => {
+			const allTemplates = templateStorage.get_all_templates();
+			setTemplates(allTemplates);
+		};
+
+		loadTemplates();
+
+		window.addEventListener('storage', loadTemplates);
+		return () => window.removeEventListener('storage', loadTemplates);
+	}, []);
+
 	const form = useForm<ShiftFormSchema>({
 		resolver: zodResolver(shiftSchema),
 		defaultValues: {
@@ -106,7 +123,6 @@ export default function Day({
 					{shiftsForDay.length ? (
 						<ul className="flex flex-col gap-y-1">
 							{shiftsForDay.map((shift) => {
-								console.log('pay', shift.pay);
 								return (
 									<li
 										key={shift.id}
@@ -125,7 +141,7 @@ export default function Day({
 													{shift.pay &&
 														shift.pay !== '' &&
 														shift.pay !== '0' &&
-														`${shift.pay}$ total`}
+														`${parseFloat(shift.pay).toString()}$ total`}
 													)
 												</span>
 											</Badge>
@@ -137,7 +153,10 @@ export default function Day({
 					) : (
 						'No entries.'
 					)}
-					<Drawer>
+					<Drawer
+						open={addShiftDialogIsOpen}
+						onOpenChange={setAddShiftDialogIsOpen}
+					>
 						<DrawerTrigger asChild>
 							<Button>Add new work shift?</Button>
 						</DrawerTrigger>
@@ -150,6 +169,49 @@ export default function Day({
 							</DrawerHeader>
 
 							<div className="flex flex-col justify-content items-center">
+								<p className="mb-1 font-bold">Templates:</p>
+								{templates.length ? (
+									<ul className="flex flex-col gap-y-1 mb-5">
+										{templates.map((template) => {
+											return (
+												<li key={template.id}>
+													<button
+														className="flex gap-x-1 items-center hover:cursor-pointer hover:italic"
+														onClick={() => {
+															form.setValue('workplace', template.workplace);
+															form.setValue('wage', template.wage ?? '');
+															form.setValue('pay', template.pay ?? '');
+															form.setValue('from', template.from);
+															form.setValue('to', template.to);
+														}}
+													>
+														<p>{template.workplace}:</p>
+														<div className="flex">
+															<Badge>
+																{template.from} - {template.to}{' '}
+																<span className="font-bold">
+																	(
+																	{template.wage &&
+																		template.wage !== '' &&
+																		template.wage !== '0' &&
+																		`${parseFloat(template.wage).toString()}$/hr, ${calculatePayFromWage(template.wage, template.to, template.from)}$ total`}
+																	{template.pay &&
+																		template.pay !== '' &&
+																		template.pay !== '0' &&
+																		`${parseFloat(template.pay).toString()}$ total`}
+																	)
+																</span>
+															</Badge>
+														</div>
+													</button>
+												</li>
+											);
+										})}
+									</ul>
+								) : (
+									<p className="opacity-50">No templates created.</p>
+								)}
+
 								<form
 									className="min-w-96 flex flex-col justify-content items-center"
 									onSubmit={(e) => {
@@ -183,6 +245,7 @@ export default function Day({
 											setShifts((prev) => [...prev, newShift]);
 
 											form.reset();
+											setAddShiftDialogIsOpen(false);
 										}
 									}}
 								>
@@ -198,7 +261,7 @@ export default function Day({
 														id="workplace"
 														aria-invalid={fieldState.invalid}
 														placeholder="Apple Inc."
-														autoComplete="workplace"
+														autoComplete="off"
 														required
 													/>
 													{fieldState.invalid && (
@@ -312,11 +375,7 @@ export default function Day({
 								</form>
 							</div>
 
-							<DrawerFooter>
-								<DrawerClose>
-									<Button variant="outline">Cancel</Button>
-								</DrawerClose>
-							</DrawerFooter>
+							<DrawerFooter></DrawerFooter>
 						</DrawerContent>
 					</Drawer>{' '}
 				</div>
