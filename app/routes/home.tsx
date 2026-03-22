@@ -79,8 +79,15 @@ export default function Home() {
 	const data = useLoaderData<typeof loader>();
 
 	useEffect(() => {
-		shiftStorage.set_all_shifts(data?.shiftsData?.shifts);
-		templateStorage.set_all_templates(data?.templatesData?.templates);
+		if (data?.shiftsData?.shifts && data?.shiftsData?.shifts.length > 0) {
+			shiftStorage.set_all_shifts(data?.shiftsData?.shifts);
+		}
+		if (
+			data?.templatesData?.templates &&
+			data?.templatesData?.templates.length > 0
+		) {
+			templateStorage.set_all_templates(data?.templatesData?.templates);
+		}
 	}, [data?.shiftsData, data?.templatesData]);
 
 	return (

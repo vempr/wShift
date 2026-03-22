@@ -1,21 +1,12 @@
 # wShift
 
-## Notes I wrote down for this small project
+A simple one-page web application for writing down your work shifts! wShift is designed to help you quickly document entries, with the help of shift templates: just simply fill out a model work shift, then reuse it for when you need to make a new shift entry!
 
-react router, tailwind, supabase, vercel
-loaders & actions
-Calendar: monthly, yearly view
-Weekly: hover to view insights of certain week beside calendar
-Click on day: shows shifts and option to add shift
-CRUD shift templates (count breaks?)
-Overviews with theoretical pay
-Pay limit warning for a month (aushilfe)
-Optimistic UI with confirmation toast
-Offline/online mode: option to always stay offline, sync button, always sync, cache site, local storage
-Login/signup: change email/password, delete account
-Desktop view: overview and insights on left, calendar middle/right
-Mobile view: navbar for calendar and insights separately
-Neobrutalistic UI
+Try it out: https://wshift.onrender.com
+
+Demo video:
+
+wShift uses Local Storage alongside Supabase, so guests can also use the calendar and all of it's functionalities. Logging in allows user to synchronize calendars across devices and you only need to provide an email address, since our authorization is magic-link-based.
 
 ## Building for Production
 
