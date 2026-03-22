@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 import type { Route } from './+types/auth';
-import { createSupabaseServerClient } from '~/utils/supabase.server';
+import { createSupabaseServerClient } from '~/utils/supabase.server.ts';
 
 export async function loader({ request }: Route.LoaderArgs) {
 	const requestURL = new URL(request.url);
@@ -22,7 +22,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 	if (error || !data.session || !data.user) {
 		console.error('OTP verification error:', error);
-		throw redirect('/login', { headers: new Headers() });
+		throw redirect('/auth', { headers: new Headers() });
 	}
 
 	return redirect('/', { headers });

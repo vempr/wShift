@@ -29,6 +29,7 @@ import { shiftSchema, type ShiftFormSchema } from '~/form/shift';
 import { templateStorage, type Template } from '~/utils/templateStorage';
 import { Badge } from '~/components/ui/badge';
 import { Pencil, RefreshCcw } from 'lucide-react';
+import { useSync } from '~/utils/sync';
 
 interface ShiftDrawerProps {
 	shift: Shift;
@@ -46,6 +47,7 @@ export default function EditShiftDrawer({
 	setTemplates,
 }: ShiftDrawerProps) {
 	const [addShiftDialogIsOpen, setAddShiftDialogIsOpen] = useState(false);
+	const { syncShifts } = useSync();
 
 	const form = useForm<ShiftFormSchema>({
 		resolver: zodResolver(shiftSchema),
@@ -156,9 +158,11 @@ export default function EditShiftDrawer({
 							const moneyValid = (hasWage && !hasPay) || (!hasWage && hasPay);
 
 							if (shiftData.workplace && fromAndToValid && moneyValid) {
-								console.log(formData);
 								shiftStorage.update_shift(shift.id, shiftData);
 								setShifts(shiftStorage.get_all_shifts());
+
+								syncShifts();
+
 								setAddShiftDialogIsOpen(false);
 							}
 						}}

@@ -25,6 +25,7 @@ import { Button } from '~/components/ui/button';
 import { shiftSchema, type ShiftFormSchema } from '~/form/shift';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Pencil } from 'lucide-react';
+import { useSync } from '~/utils/sync';
 
 interface AddShiftTemplateProps {
 	template: Template;
@@ -36,6 +37,7 @@ export default function EditShiftTemplate({
 	setTemplates,
 }: AddShiftTemplateProps) {
 	const [addTemplateDialogIsOpen, setAddTemplateDialogIsOpen] = useState(false);
+	const { syncTemplates } = useSync();
 
 	const form = useForm<ShiftFormSchema>({
 		resolver: zodResolver(shiftSchema),
@@ -94,7 +96,6 @@ export default function EditShiftTemplate({
 						const moneyValid = (hasWage && !hasPay) || (!hasWage && hasPay);
 
 						if (templateData.workplace && fromAndToValid && moneyValid) {
-							console.log(formData);
 							const updatedTemplate = templateStorage.update_template(
 								template.id,
 								templateData,
@@ -102,6 +103,9 @@ export default function EditShiftTemplate({
 
 							if (updatedTemplate) {
 								setTemplates(templateStorage.get_all_templates());
+
+								syncTemplates();
+
 								setAddTemplateDialogIsOpen(false);
 							}
 						}

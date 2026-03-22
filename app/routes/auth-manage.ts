@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '~/utils/supabase.server';
+import { createSupabaseServerClient } from '~/utils/supabase.server.ts';
 import type { Route } from './+types/auth';
 import { redirect } from 'react-router';
 

@@ -18,6 +18,7 @@ import { templateStorage, type Template } from '~/utils/templateStorage';
 import { Pencil, Trash } from 'lucide-react';
 import AddShiftDrawer from './day/add_shift';
 import EditShiftDrawer from './day/edit_shift';
+import { useSync } from '~/utils/sync';
 
 interface DayComponentProps {
 	day: Date;
@@ -33,6 +34,7 @@ export default function Day({
 	shiftsForDay,
 }: DayComponentProps) {
 	const [templates, setTemplates] = useState<Template[]>([]);
+	const { syncShifts } = useSync();
 
 	useEffect(() => {
 		const loadTemplates = () => {
@@ -146,6 +148,7 @@ export default function Day({
 												variant="destructive"
 												onClick={() => {
 													setShifts(shiftStorage.delete_shift(shift.id));
+													syncShifts();
 												}}
 											>
 												<Trash />

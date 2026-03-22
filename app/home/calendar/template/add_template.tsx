@@ -24,6 +24,7 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { shiftSchema, type ShiftFormSchema } from '~/form/shift';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useSync } from '~/utils/sync';
 
 interface AddShiftTemplateProps {
 	setTemplates: React.Dispatch<React.SetStateAction<Template[]>>;
@@ -33,6 +34,7 @@ export default function AddShiftTemplate({
 	setTemplates,
 }: AddShiftTemplateProps) {
 	const [addTemplateDialogIsOpen, setAddTemplateDialogIsOpen] = useState(false);
+	const { syncTemplates } = useSync();
 
 	const form = useForm<ShiftFormSchema>({
 		resolver: zodResolver(shiftSchema),
@@ -89,9 +91,10 @@ export default function AddShiftTemplate({
 						const moneyValid = (hasWage && !hasPay) || (!hasWage && hasPay);
 
 						if (templateData.workplace && fromAndToValid && moneyValid) {
-							console.log(formData);
 							const newTemplate = templateStorage.add_template(templateData);
 							setTemplates((prev) => [...prev, newTemplate]);
+
+							syncTemplates();
 
 							form.reset();
 							setAddTemplateDialogIsOpen(false);

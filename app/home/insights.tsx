@@ -44,21 +44,23 @@ export default function Insights({ currentMonth }: { currentMonth: Date }) {
 			<ul>
 				{weeksInMonth.map((week) => {
 					return (
-						<Card>
-							<CardHeader>
-								<CardTitle>Week {week.weekNumber}</CardTitle>
-								<CardDescription>
-									{week.startDate.toDateString()} -{' '}
-									{week.endDate.toDateString()}
-								</CardDescription>
-							</CardHeader>
-							<CardContent>
-								<p>
-									Earnings:{' '}
-									<kbd className="font-bold">{week.earnings.toFixed(2)}$</kbd>
-								</p>
-							</CardContent>
-						</Card>
+						<li key={week.weekNumber}>
+							<Card>
+								<CardHeader>
+									<CardTitle>Week {week.weekNumber}</CardTitle>
+									<CardDescription>
+										{week.startDate.toDateString()} -{' '}
+										{week.endDate.toDateString()}
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<p>
+										Earnings:{' '}
+										<kbd className="font-bold">{week.earnings.toFixed(2)}$</kbd>
+									</p>
+								</CardContent>
+							</Card>
+						</li>
 					);
 				})}
 			</ul>

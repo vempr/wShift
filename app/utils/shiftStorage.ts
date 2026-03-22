@@ -1,4 +1,6 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { eachWeekOfInterval, endOfMonth, endOfWeek, format } from 'date-fns';
+import type { Database } from '~/types/database';
 
 export interface Shift {
 	id: string;
@@ -27,6 +29,16 @@ export interface WeekSummary {
 
 class ShiftStorage {
 	private storageKey = 'shifts';
+	private userId: string | null = null;
+	private supabaseClient: SupabaseClient<Database> | null = null;
+
+	set_supabase_client(client: SupabaseClient<Database>) {
+		this.supabaseClient = client;
+	}
+
+	set_user_id(id: string) {
+		this.userId = id;
+	}
 
 	get_all_shifts(): Shift[] {
 		try {
@@ -36,6 +48,10 @@ class ShiftStorage {
 			console.error('Error loading work shifts:', err);
 			return [];
 		}
+	}
+
+	set_all_shifts(shifts?: string): void {
+		localStorage.setItem(this.storageKey, shifts ?? '');
 	}
 
 	add_shift(date: Date, formData: ShiftFormData): Shift {
@@ -166,6 +182,48 @@ class ShiftStorage {
 			};
 		});
 	}
+
+	/* async sync_to_supabase(): Promise<void> {
+		if (!this.userId || !this.supabaseClient) return;
+
+		const shifts = this.get_all_shifts();
+		const { error } = await this.supabaseClient.from('shifts').upsert(
+			{
+				user_id: this.userId,
+				shifts: JSON.stringify(shifts),
+			},
+			{
+				onConflict: 'user_id',
+			},
+		);
+
+		if (error) {
+			console.log('Error syncing shifts to Supabase:', error);
+		}
+	}
+
+	async load_from_supabase(): Promise<void> {
+		if (!this.userId || !this.supabaseClient) return;
+
+		const { data, error } = await this.supabaseClient
+			.from('shifts')
+			.select('shifts')
+			.eq('user_id', this.userId)
+			.single();
+
+		if (error) {
+			console.error('Error loading shifts from Supabase:', error);
+		}
+
+		if (!error && data.shifts) {
+			try {
+				const shifts = JSON.parse(data.shifts);
+				localStorage.setItem(this.storageKey, JSON.stringify(shifts));
+			} catch (err) {
+				console.error('Error parsing shifts from Supabase:', err);
+			}
+		}
+	} */
 }
 
 export const shiftStorage = new ShiftStorage();

@@ -20,9 +20,11 @@ import { calculatePayFromWage } from '~/utils/wage';
 import { Trash } from 'lucide-react';
 import AddShiftTemplate from './template/add_template';
 import EditShiftTemplate from './template/edit.template';
+import { useSync } from '~/utils/sync';
 
 export default function ManageShiftTemplates() {
 	const [templates, setTemplates] = useState<Template[]>([]);
+	const { syncTemplates } = useSync();
 
 	useEffect(() => {
 		const loadTemplates = () => {
@@ -89,6 +91,7 @@ export default function ManageShiftTemplates() {
 													setTemplates(
 														templateStorage.delete_template(template.id),
 													);
+													syncTemplates();
 												}}
 											>
 												<Trash />

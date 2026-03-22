@@ -12,7 +12,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '~/components/ui/input';
 import { Button } from '~/components/ui/button';
-import { createSupabaseServerClient } from '~/utils/supabase.server';
+import { createSupabaseServerClient } from '~/utils/supabase.server.ts';
 import { Form, useFetcher, useLoaderData } from 'react-router';
 
 export function meta({}: Route.MetaArgs) {
