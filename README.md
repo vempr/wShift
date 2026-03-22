@@ -4,7 +4,7 @@ A simple one-page web application for writing down your work shifts! wShift is d
 
 Try it out: https://wshift.onrender.com
 
-Demo video:
+Demo video: https://youtu.be/_uvx_9X5vxc
 
 wShift uses Local Storage alongside Supabase, so guests can also use the calendar and all of it's functionalities. Logging in allows user to synchronize calendars across devices and you only need to provide an email address, since our authorization is magic-link-based.
 
